@@ -14,6 +14,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 🔥 Test Route (to verify backend is running)
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Backend API is working!" });
+});
+
 // MAIN ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingsRoutes);

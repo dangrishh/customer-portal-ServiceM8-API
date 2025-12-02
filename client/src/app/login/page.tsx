@@ -12,18 +12,22 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, phone }),
       });
 
+      // ❗ If backend route is missing or wrong → res.ok = false
       if (!res.ok) throw new Error("Invalid login");
 
       const data = await res.json();
+
+      // Store authentication
       localStorage.setItem("token", data.token);
       localStorage.setItem("customerId", data.customerId);
 
+      // Redirect user after login
       window.location.href = "/bookings";
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An error occurred");

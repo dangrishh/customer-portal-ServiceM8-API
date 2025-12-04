@@ -6,74 +6,91 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
+
+    console.log("HITTING URL:", "http://localhost:4000/api/auth/login");
 
     try {
-      const res = await fetch("", {
+      const res = await fetch("http://localhost:4000/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email, phone }),
       });
 
-      // ❗ If backend route is missing or wrong → res.ok = false
-      if (!res.ok) throw new Error("Invalid login");
+      if (!res.ok) {
+        throw new Error("Invalid email or phone.");
+      }
 
       const data = await res.json();
 
-      // Store authentication
+      // Store authentication locally
       localStorage.setItem("token", data.token);
       localStorage.setItem("customerId", data.customerId);
 
-      // Redirect user after login
+      // Redirect after login
       window.location.href = "/bookings";
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-blue-50">
-      <div className="w-full max-w-md bg-white shadow rounded-2xl p-8 border border-gray-100">
-        <h1 className="text-2xl font-bold text-blue-700 mb-6 text-center">
-          Customer Portal
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-blue-50 to-blue-100">
+      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8 border border-gray-200">
+        <h1 className="text-3xl font-bold text-blue-700 mb-8 text-center">
+          Customer Portal Login
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email Address
             </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-xl border-gray-200 p-3"
+              className="w-full rounded-xl border-gray-300 p-3 shadow-sm text-black focus:ring-blue-500 focus:border-blue-500"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Phone
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone Number
             </label>
             <input
               type="text"
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="mt-1 block w-full rounded-xl border-gray-200 p-3"
-              placeholder="123-456-7890"
+              className="w-full rounded-xl border-gray-300 p-3 shadow-sm text-black focus:ring-blue-500 focus:border-blue-500"
+              placeholder="012-345-6789"
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="text-sm text-red-600 bg-red-50 p-2 rounded-lg">
+              {error}
+            </p>
+          )}
 
-          <button className="w-full py-3 rounded-2xl bg-blue-600 text-white font-semibold">
-            Log in
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition disabled:bg-blue-400"
+          >
+            {loading ? "Logging in..." : "Log in"}
           </button>
         </form>
       </div>
